@@ -20,41 +20,72 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {connect, useDispatch, useSelector} from 'react-redux';
 import {getDataRequest} from '../actions/restuarantDataActions';
 
-const Item = ({title, navigation}) => (
+const Item = ({title, navigation, itemData}) => (
   <View style={styles.item}>
     <Text
       style={styles.title}
-      onPress={() => navigation.push('ApplicantsScreen')}>
+      onPress={() => {
+        console.log('PRess event');
+        console.log(itemData);
+        navigation.push('ApplicantsScreen', {itemData});
+      }}>
       {title}
     </Text>
   </View>
 );
 
 function HomeScreen(props) {
-  const renderItem = ({item}) => (
-    <Item title={item.title} navigation={props.navigation} />
-  );
+  const renderItem = ({item}) => {
+    return (
+      <Item title={item.name} navigation={props.navigation} itemData={item} />
+    );
+  };
 
   const globalState = useSelector((state) => state.restuarants);
-  const [restuarantData, setRestuarantData] = useState([
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'First Item',
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      title: 'Second Item',
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      title: 'Third Item',
-    },
-  ]);
+  const [restuarantData, setRestuarantData] = useState([]);
+  const [restaurantList, setRestuarantList] = useState({});
 
   const dispatch = useDispatch();
 
-  console.log('PRops');
-  console.log(globalState);
+  console.log('restuarantData');
+  console.log(restuarantData);
+
+  useEffect(() => {
+    if (
+      globalState.error === null &&
+      globalState.list !== null &&
+      globalState.fetching === false
+    ) {
+      setRestuarantData(globalState.list.data);
+
+      let tempList = {};
+
+      globalState.list.data.forEach((listItem) => {
+        let singleResturantData = {
+          name: listItem.restaurant.label,
+          restId: listItem.restaurant.id,
+          applicants: [listItem.form_response],
+          itemId: listItem.id,
+        };
+
+        if (tempList[listItem.restaurant.id] === undefined) {
+          // The restuarant is not in list yet
+
+          tempList[listItem.restaurant.id] = singleResturantData;
+        } else {
+          //The restuarant is in list
+
+          tempList[listItem.restaurant.id].applicants.push(
+            listItem.form_response,
+          );
+        }
+      });
+
+      setRestuarantList(tempList);
+      console.log('Temp list');
+      console.log(tempList);
+    }
+  }, [globalState]);
 
   return (
     <>
@@ -63,11 +94,13 @@ function HomeScreen(props) {
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           style={styles.scrollView}>
-          <FlatList
-            data={restuarantData}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-          />
+          {Object.keys(restaurantList).length > 0 && (
+            <FlatList
+              data={Object.values(restaurantList)}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+            />
+          )}
         </ScrollView>
       </SafeAreaView>
     </>
@@ -76,20 +109,29 @@ function HomeScreen(props) {
 
 const styles = StyleSheet.create({
   scrollView: {
-    backgroundColor: Colors.lighter,
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+  },
+  pageTitle: {
+    color: '#ff570a',
+    fontSize: 32,
+    textAlign: 'center',
   },
   container: {
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
   },
   item: {
-    backgroundColor: '#f9c2ff',
-    padding: 20,
-    marginVertical: 8,
+    backgroundColor: '#12355b',
+    padding: 10,
+    marginVertical: 10,
     marginHorizontal: 16,
+    borderRadius: 5,
+    overflow: 'hidden',
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
+    color: '#fff',
   },
 });
 

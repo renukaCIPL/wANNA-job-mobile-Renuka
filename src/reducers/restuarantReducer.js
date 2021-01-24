@@ -4,8 +4,10 @@ import {
   GET_DATA_REJECT,
 } from '../actions/types';
 
+import {dummyData} from '../../dummyData';
+
 const initialState = {
-  list: [],
+  list: dummyData,
   fetching: false,
   error: null,
 };
