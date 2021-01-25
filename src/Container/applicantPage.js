@@ -1,15 +1,7 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
 import React from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
   StatusBar,
@@ -44,16 +36,14 @@ function ApplicantPage(props) {
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         {selectedRestaurantData !== null && (
-          <ScrollView
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.scrollView}>
+          <View style={styles.scrollView}>
             <Text style={styles.pageTitle}>{selectedRestaurantData.name}</Text>
             <FlatList
               data={selectedRestaurantData.applicants}
               renderItem={renderItem}
               keyExtractor={(item) => item.itemId}
             />
-          </ScrollView>
+          </View>
         )}
       </SafeAreaView>
     </>

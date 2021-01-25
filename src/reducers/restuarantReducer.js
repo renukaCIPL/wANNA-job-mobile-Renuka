@@ -19,7 +19,7 @@ const restuarantReducer = (state = initialState, action) => {
     case GET_DATA_SUCCESS:
       return {
         ...state,
-        list: action.payload,
+        list: dummyData,
         fetching: false,
         error: null,
       };

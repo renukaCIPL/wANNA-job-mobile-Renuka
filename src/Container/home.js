@@ -9,15 +9,12 @@ import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
   StatusBar,
   FlatList,
 } from 'react-native';
-
-import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {connect, useDispatch, useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {getDataRequest} from '../actions/restuarantDataActions';
 
 const Item = ({title, navigation, itemData}) => (
@@ -25,8 +22,6 @@ const Item = ({title, navigation, itemData}) => (
     <Text
       style={styles.title}
       onPress={() => {
-        console.log('PRess event');
-        console.log(itemData);
         navigation.push('ApplicantsScreen', {itemData});
       }}>
       {title}
@@ -47,53 +42,60 @@ function HomeScreen(props) {
 
   const dispatch = useDispatch();
 
-  console.log('restuarantData');
-  console.log(restuarantData);
+  //On mount hook
+
+  // useEffect(() => {
+  //   dispatch(getDataRequest());
+  // }, [dispatch]);
 
   useEffect(() => {
+    console.log('globalState');
+    console.log(globalState);
     if (
       globalState.error === null &&
       globalState.list !== null &&
-      globalState.fetching === false
+      restuarantData &&
+      restuarantData.length === 0
     ) {
       setRestuarantData(globalState.list.data);
 
       let tempList = {};
 
-      globalState.list.data.forEach((listItem) => {
-        let singleResturantData = {
-          name: listItem.restaurant.label,
-          restId: listItem.restaurant.id,
-          applicants: [listItem.form_response],
-          itemId: listItem.id,
-        };
+      // To filter out data on basis of restuarant id
+      if (globalState.list.data && globalState.list.data.length > 0) {
+        globalState.list.data.forEach((listItem) => {
+          if (listItem.restaurant) {
+            let singleResturantData = {
+              name: listItem.restaurant.label,
+              restId: listItem.restaurant.id,
+              applicants: [listItem.form_response],
+              itemId: listItem.id,
+            };
 
-        if (tempList[listItem.restaurant.id] === undefined) {
-          // The restuarant is not in list yet
+            if (tempList[listItem.restaurant.id] === undefined) {
+              // The restuarant is not in list yet
 
-          tempList[listItem.restaurant.id] = singleResturantData;
-        } else {
-          //The restuarant is in list
+              tempList[listItem.restaurant.id] = singleResturantData;
+            } else {
+              //The restuarant is in list
 
-          tempList[listItem.restaurant.id].applicants.push(
-            listItem.form_response,
-          );
-        }
-      });
+              tempList[listItem.restaurant.id].applicants.push(
+                listItem.form_response,
+              );
+            }
+          }
+        });
+      }
 
       setRestuarantList(tempList);
-      console.log('Temp list');
-      console.log(tempList);
     }
-  }, [globalState]);
+  }, [globalState, restuarantData]);
 
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
+        <View style={styles.scrollView}>
           {Object.keys(restaurantList).length > 0 && (
             <FlatList
               data={Object.values(restaurantList)}
@@ -101,7 +103,7 @@ function HomeScreen(props) {
               keyExtractor={(item) => item.id}
             />
           )}
-        </ScrollView>
+        </View>
       </SafeAreaView>
     </>
   );

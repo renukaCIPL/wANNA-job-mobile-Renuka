@@ -1,22 +1,14 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
 import React from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
   StatusBar,
   FlatList,
 } from 'react-native';
 
-const Item = ({details, navigation}) => (
+const Item = ({details}) => (
   <View style={styles.item}>
     <Text style={styles.titleText}>{`Field Id : ${details.field.id}`}</Text>
     <Text style={styles.titleText}>{`Field Ref : ${details.field.ref}`}</Text>
@@ -33,9 +25,7 @@ const Item = ({details, navigation}) => (
 );
 
 function ApplicantPage(props) {
-  const renderItem = ({item}) => (
-    <Item navigation={props.navigation} details={item} />
-  );
+  const renderItem = ({item}) => <Item details={item} />;
 
   const applicationData = props.route.params.applicationData;
 
@@ -44,9 +34,7 @@ function ApplicantPage(props) {
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         {applicationData !== null && (
-          <ScrollView
-            contentInsetAdjustmentBehavior="automatic"
-            style={styles.scrollView}>
+          <View style={styles.scrollView}>
             <Text style={styles.pageTitle}>
               {applicationData.definition.title}
             </Text>
@@ -55,7 +43,7 @@ function ApplicantPage(props) {
               renderItem={renderItem}
               keyExtractor={(item) => item.itemId}
             />
-          </ScrollView>
+          </View>
         )}
       </SafeAreaView>
     </>
